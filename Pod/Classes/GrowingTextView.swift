@@ -39,12 +39,32 @@ open class GrowingTextView: UITextView {
     @IBInspectable open var placeHolderColor: UIColor = UIColor(white: 0.8, alpha: 1.0) {
         didSet { setNeedsDisplay() }
     }
+    @IBInspectable open var placeHolderActiveColor: UIColor = UIColor(white: 0.8, alpha: 1.0) {
+        didSet { setNeedsDisplay() }
+    }
+    @IBInspectable open var cornerRadius: CGFloat = 0 {
+        didSet { setNeedsDisplay() }
+    }
+    @IBInspectable open var borderWidth: CGFloat = 0 {
+        didSet { setNeedsDisplay() }
+    }
+    @IBInspectable open var borderWidthActive: CGFloat = 0 {
+        didSet { setNeedsDisplay() }
+    }
+    @IBInspectable open var borderColor: UIColor = UIColor(white: 0.8, alpha: 1.0) {
+        didSet { setNeedsDisplay() }
+    }
+    @IBInspectable open var borderActiveColor: UIColor = UIColor(white: 0.8, alpha: 1.0) {
+        didSet { setNeedsDisplay() }
+    }
     @IBInspectable open var attributedPlaceHolder: NSAttributedString? {
         didSet { setNeedsDisplay() }
     }
     @IBInspectable open var placeHolderLeftMargin: CGFloat = 5 {
         didSet { setNeedsDisplay() }
     }
+    
+    private var isActive = false
     
     // Initialize
     override public init(frame: CGRect, textContainer: NSTextContainer?) {
@@ -62,6 +82,7 @@ open class GrowingTextView: UITextView {
         associateConstraints()
         NotificationCenter.default.addObserver(self, selector: #selector(textDidChange), name: .UITextViewTextDidChange, object: self)
         NotificationCenter.default.addObserver(self, selector: #selector(textDidEndEditing), name: .UITextViewTextDidEndEditing, object: self)
+        NotificationCenter.default.addObserver(self, selector: #selector(textDidBeginEditing), name: .UITextViewTextDidBeginEditing, object: self)
     }
     
     deinit {
@@ -124,6 +145,8 @@ open class GrowingTextView: UITextView {
                 delegate.textViewDidChangeHeight?(self, height: height)
             }
         }
+        
+        self.layer.shadowColor = UIColor(red: 13/255.0, green: 21/255.0, blue: 38/255.0, alpha: 0.2).cgColor
     }
 
     private func scrollToCorrectPosition() {
@@ -145,6 +168,12 @@ open class GrowingTextView: UITextView {
             let width = rect.size.width - xValue - textContainerInset.right
             let height = rect.size.height - yValue - textContainerInset.bottom
             let placeHolderRect = CGRect(x: xValue, y: yValue, width: width, height: height)
+            self.layer.borderWidth = self.isActive ? self.borderWidthActive : self.borderWidth
+            self.layer.borderColor = self.isActive ? self.borderActiveColor.cgColor : self.borderColor.cgColor
+            self.layer.shadowOffset = CGSize(width: 0, height: self.isActive ? 5.0 : 0)
+            self.layer.shadowOpacity = self.isActive ? 1.0 : 0
+            self.layer.cornerRadius = self.cornerRadius
+            self.tintColor = self.borderActiveColor
             
             if let attributedPlaceholder = attributedPlaceHolder {
                 // Prefer to use attributedPlaceHolder
@@ -154,7 +183,7 @@ open class GrowingTextView: UITextView {
                 let paragraphStyle = NSMutableParagraphStyle()
                 paragraphStyle.alignment = textAlignment
                 var attributes: [String: Any] = [
-                    NSForegroundColorAttributeName: placeHolderColor,
+                    NSForegroundColorAttributeName: self.isActive ? placeHolderActiveColor : placeHolderColor,
                     NSParagraphStyleAttributeName: paragraphStyle
                 ]
                 if let font = font {
@@ -166,10 +195,20 @@ open class GrowingTextView: UITextView {
         }
     }
     
+    func textDidBeginEditing(notification: Notification) {
+        if let notificationObject = notification.object as? GrowingTextView {
+            if notificationObject === self {
+                self.isActive = true
+                setNeedsDisplay()
+            }
+        }
+    }
+    
     // Trim white space and new line characters when end editing.
     func textDidEndEditing(notification: Notification) {
         if let notificationObject = notification.object as? GrowingTextView {
             if notificationObject === self {
+                self.isActive = false
                 if trimWhiteSpaceWhenEndEditing {
                     text = text?.trimmingCharacters(in: .whitespacesAndNewlines)
                     setNeedsDisplay()
