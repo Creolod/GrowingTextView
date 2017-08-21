@@ -83,6 +83,7 @@ open class GrowingTextView: UITextView {
         NotificationCenter.default.addObserver(self, selector: #selector(textDidChange), name: .UITextViewTextDidChange, object: self)
         NotificationCenter.default.addObserver(self, selector: #selector(textDidEndEditing), name: .UITextViewTextDidEndEditing, object: self)
         NotificationCenter.default.addObserver(self, selector: #selector(textDidBeginEditing), name: .UITextViewTextDidBeginEditing, object: self)
+        self.autocorrectionType = .no
     }
     
     deinit {
@@ -148,7 +149,7 @@ open class GrowingTextView: UITextView {
         
         self.layer.shadowColor = UIColor(red: 13/255.0, green: 21/255.0, blue: 38/255.0, alpha: 0.2).cgColor
     }
-
+    
     private func scrollToCorrectPosition() {
         DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
             if self.isFirstResponder {
@@ -162,20 +163,21 @@ open class GrowingTextView: UITextView {
     // Show placeholder if needed
     override open func draw(_ rect: CGRect) {
         super.draw(rect)
+        
+        let xValue = textContainerInset.left + placeHolderLeftMargin
+        let yValue = textContainerInset.top
+        let width = rect.size.width - xValue - textContainerInset.right
+        let height = rect.size.height - yValue - textContainerInset.bottom
+        let placeHolderRect = CGRect(x: xValue, y: yValue, width: width, height: height)
+        
+        self.layer.borderWidth = self.isActive ? self.borderWidthActive : self.borderWidth
+        self.layer.borderColor = self.isActive ? self.borderActiveColor.cgColor : self.borderColor.cgColor
+        self.layer.shadowOffset = CGSize(width: 0, height: self.isActive ? 5.0 : 0)
+        self.layer.shadowOpacity = self.isActive ? 1.0 : 0
+        self.layer.cornerRadius = self.cornerRadius
+        self.tintColor = self.borderActiveColor
+        
         if text.isEmpty {
-            let xValue = textContainerInset.left + placeHolderLeftMargin
-            let yValue = textContainerInset.top
-            let width = rect.size.width - xValue - textContainerInset.right
-            let height = rect.size.height - yValue - textContainerInset.bottom
-            let placeHolderRect = CGRect(x: xValue, y: yValue, width: width, height: height)
-            
-            self.layer.borderWidth = self.isActive ? self.borderWidthActive : self.borderWidth
-            self.layer.borderColor = self.isActive ? self.borderActiveColor.cgColor : self.borderColor.cgColor
-            self.layer.shadowOffset = CGSize(width: 0, height: self.isActive ? 5.0 : 0)
-            self.layer.shadowOpacity = self.isActive ? 1.0 : 0
-            self.layer.cornerRadius = self.cornerRadius
-            self.tintColor = self.borderActiveColor
-            
             if let attributedPlaceholder = attributedPlaceHolder {
                 // Prefer to use attributedPlaceHolder
                 attributedPlaceholder.draw(in: placeHolderRect)
@@ -212,10 +214,10 @@ open class GrowingTextView: UITextView {
                 self.isActive = false
                 if trimWhiteSpaceWhenEndEditing {
                     text = text?.trimmingCharacters(in: .whitespacesAndNewlines)
-                    setNeedsDisplay()
                 }
+                setNeedsDisplay()
             }
-            scrollToCorrectPosition()
+            //            scrollToCorrectPosition()
         }
     }
     
