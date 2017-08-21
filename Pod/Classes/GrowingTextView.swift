@@ -168,6 +168,8 @@ open class GrowingTextView: UITextView {
             let width = rect.size.width - xValue - textContainerInset.right
             let height = rect.size.height - yValue - textContainerInset.bottom
             let placeHolderRect = CGRect(x: xValue, y: yValue, width: width, height: height)
+            
+            self.layer.masksToBounds = false
             self.layer.borderWidth = self.isActive ? self.borderWidthActive : self.borderWidth
             self.layer.borderColor = self.isActive ? self.borderActiveColor.cgColor : self.borderColor.cgColor
             self.layer.shadowOffset = CGSize(width: 0, height: self.isActive ? 5.0 : 0)
