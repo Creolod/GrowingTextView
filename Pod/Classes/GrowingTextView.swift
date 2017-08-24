@@ -80,7 +80,7 @@ open class GrowingTextView: UITextView {
     private func commonInit() {
         contentMode = .redraw
         associateConstraints()
-        self.textContainerInset = UIEdgeInsets(top: self.textContainerInset.top, left: 12, bottom: self.textContainerInset.bottom, right: 12);
+        self.textContainerInset = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12);
         NotificationCenter.default.addObserver(self, selector: #selector(textDidChange), name: .UITextViewTextDidChange, object: self)
         NotificationCenter.default.addObserver(self, selector: #selector(textDidEndEditing), name: .UITextViewTextDidEndEditing, object: self)
         NotificationCenter.default.addObserver(self, selector: #selector(textDidBeginEditing), name: .UITextViewTextDidBeginEditing, object: self)
