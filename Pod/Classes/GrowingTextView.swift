@@ -75,6 +75,21 @@ open class GrowingTextView: UITextView {
     @IBInspectable public var topInset: CGFloat = 0 {
         didSet { setNeedsDisplay() }
     }
+    @IBInspectable public var centerText: Bool = true {
+        didSet { setNeedsDisplay() }
+    }
+    
+    override open var contentSize: CGSize {
+        didSet {
+            if centerText {
+                var topCorrection = (bounds.size.height - contentSize.height * zoomScale) / 2.0
+                topCorrection = max(0, topCorrection)
+                contentInset = UIEdgeInsets(top: topCorrection, left: 0, bottom: 0, right: 0)
+            } else {
+                contentInset = UIEdgeInsets(top: topInset, left: leftInset, bottom: bottomInset, right: rightInset)
+            }
+        }
+    }
     
     private var isActive = false
     
@@ -154,7 +169,7 @@ open class GrowingTextView: UITextView {
         // Update height constraint if needed
         if height != heightConstraint?.constant {
             heightConstraint!.constant = height
-//            scrollToCorrectPosition()
+            scrollToCorrectPosition()
             if let delegate = delegate as? GrowingTextViewDelegate {
                 delegate.textViewDidChangeHeight?(self, height: height)
             }
@@ -230,7 +245,7 @@ open class GrowingTextView: UITextView {
                 }
                 setNeedsDisplay()
             }
-            //            scrollToCorrectPosition()
+//            scrollToCorrectPosition()
         }
     }
     
