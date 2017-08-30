@@ -63,6 +63,18 @@ open class GrowingTextView: UITextView {
     @IBInspectable open var placeHolderLeftMargin: CGFloat = 5 {
         didSet { setNeedsDisplay() }
     }
+    @IBInspectable public var bottomInset: CGFloat = 0 {
+        didSet { setNeedsDisplay() }
+    }
+    @IBInspectable public var leftInset: CGFloat = 0 {
+        didSet { setNeedsDisplay() }
+    }
+    @IBInspectable public var rightInset: CGFloat = 0 {
+        didSet { setNeedsDisplay() }
+    }
+    @IBInspectable public var topInset: CGFloat = 0 {
+        didSet { setNeedsDisplay() }
+    }
     
     private var isActive = false
     
@@ -80,7 +92,6 @@ open class GrowingTextView: UITextView {
     private func commonInit() {
         contentMode = .redraw
         associateConstraints()
-        self.textContainerInset = UIEdgeInsets(top: 12, left: 12, bottom: 12, right: 12);
         NotificationCenter.default.addObserver(self, selector: #selector(textDidChange), name: .UITextViewTextDidChange, object: self)
         NotificationCenter.default.addObserver(self, selector: #selector(textDidEndEditing), name: .UITextViewTextDidEndEditing, object: self)
         NotificationCenter.default.addObserver(self, selector: #selector(textDidBeginEditing), name: .UITextViewTextDidBeginEditing, object: self)
@@ -119,6 +130,7 @@ open class GrowingTextView: UITextView {
     
     override open func layoutSubviews() {
         super.layoutSubviews()
+        self.textContainerInset = UIEdgeInsetsMake(topInset, leftInset, bottomInset, rightInset)
         
         if text == oldText && bounds.size == oldSize { return }
         oldText = text
