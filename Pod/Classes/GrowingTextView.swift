@@ -266,7 +266,7 @@ open class GrowingTextView: UITextView {
     
     //MARK: Custom funcs
     
-    func clearTextView() {
+    open func clearTextView() {
         self.text = ""
         setNeedsDisplay()
     }
