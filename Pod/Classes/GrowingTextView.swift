@@ -14,7 +14,7 @@ import UIKit
 }
 
 @IBDesignable @objc
-open class GrowingTextView: UITextView {
+open class GrowingTextView: UITextView, UITextViewDelegate {
     override open var text: String! {
         didSet { setNeedsDisplay() }
     }
@@ -111,6 +111,7 @@ open class GrowingTextView: UITextView {
         NotificationCenter.default.addObserver(self, selector: #selector(textDidEndEditing), name: .UITextViewTextDidEndEditing, object: self)
         NotificationCenter.default.addObserver(self, selector: #selector(textDidBeginEditing), name: .UITextViewTextDidBeginEditing, object: self)
         self.autocorrectionType = .no
+        self.delegate = self
     }
     
     deinit {
@@ -145,13 +146,23 @@ open class GrowingTextView: UITextView {
     
     override open func layoutSubviews() {
         super.layoutSubviews()
+        if self.text.isEmpty {
+            self.changeHeight("")
+        }
+        self.layer.shadowColor = UIColor(red: 13/255.0, green: 21/255.0, blue: 38/255.0, alpha: 0.2).cgColor
+    }
+    
+    open func changeHeight(_ string: String) {
         self.textContainerInset = UIEdgeInsetsMake(topInset, leftInset, bottomInset, rightInset)
         
         if text == oldText && bounds.size == oldSize { return }
         oldText = text
         oldSize = bounds.size
         
-        let size = sizeThatFits(CGSize(width: bounds.size.width, height: CGFloat.greatestFiniteMagnitude))
+        let tempTextView = UITextView()
+        tempTextView.text = string
+        
+        let size = tempTextView.sizeThatFits(CGSize(width: bounds.size.width, height: CGFloat.greatestFiniteMagnitude))
         var height = size.height
         
         // Constrain minimum height
@@ -174,8 +185,6 @@ open class GrowingTextView: UITextView {
                 delegate.textViewDidChangeHeight?(self, height: height)
             }
         }
-        
-        self.layer.shadowColor = UIColor(red: 13/255.0, green: 21/255.0, blue: 38/255.0, alpha: 0.2).cgColor
     }
     
     private func scrollToCorrectPosition() {
@@ -270,4 +279,14 @@ open class GrowingTextView: UITextView {
         self.text = ""
         setNeedsDisplay()
     }
+    
+    public func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
+        if let growingTV = textView as? GrowingTextView {
+            let result = (textView.text as NSString?)?.replacingCharacters(in: range, with: text) ?? text
+            growingTV.changeHeight(result)
+        }
+        return true
+    }
 }
+
+
