@@ -162,8 +162,9 @@ open class GrowingTextView: UITextView, UITextViewDelegate {
         let tempTextView = UITextView()
         tempTextView.text = string
         
-        let size = tempTextView.sizeThatFits(CGSize(width: bounds.size.width, height: CGFloat.greatestFiniteMagnitude))
-        var height = size.height
+//        let size = tempTextView.sizeThatFits(CGSize(width: bounds.size.width, height: CGFloat.greatestFiniteMagnitude))
+        
+        var height = self.inputBarHeigtForLines(numberOfLines())
         
         // Constrain minimum height
         height = minHeight > 0 ? max(height, minHeight) : height
@@ -185,6 +186,35 @@ open class GrowingTextView: UITextView, UITextViewDelegate {
                 delegate.textViewDidChangeHeight?(self, height: height)
             }
         }
+    }
+    
+    func numberOfLines() -> Int {
+        var contentSize = self.contentSize
+        
+        var contentHeight = contentSize.height
+        contentHeight -= self.textContainerInset.top + self.textContainerInset.bottom
+        
+        var lines: Int = Int(fabs(contentHeight/self.font!.lineHeight))
+        
+        if lines == 1 && contentSize.height > self.bounds.size.height {
+            contentSize.height = self.bounds.size.height
+            self.contentSize = contentSize
+        }
+        
+        if lines == 0 {
+            lines = 1
+        }
+        
+        return lines
+    }
+    
+    func inputBarHeigtForLines(_ lines: Int) -> CGFloat {
+        
+        var height = self.intrinsicContentSize.height
+        print(height)
+        height -= self.font!.lineHeight
+        height += (self.font!.lineHeight * CGFloat(lines)).rounded()
+        return height
     }
     
     private func scrollToCorrectPosition() {

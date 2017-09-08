@@ -54,14 +54,6 @@ class Example2: UIViewController {
 
 extension Example2: GrowingTextViewDelegate {
     
-    func textView(_ textView: UITextView, shouldChangeTextIn range: NSRange, replacementText text: String) -> Bool {
-        if let growingTV = textView as? GrowingTextView {
-            let result = (textView.text as NSString?)?.replacingCharacters(in: range, with: text) ?? text
-            growingTV.changeHeight(result)
-        }
-        return true
-    }
-    
     // *** Call layoutIfNeeded on superview for animation when changing height ***
     
     func textViewDidChangeHeight(_ textView: GrowingTextView, height: CGFloat) {
