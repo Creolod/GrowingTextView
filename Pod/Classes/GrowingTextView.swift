@@ -112,6 +112,7 @@ open class GrowingTextView: UITextView, UITextViewDelegate {
         NotificationCenter.default.addObserver(self, selector: #selector(textDidBeginEditing), name: .UITextViewTextDidBeginEditing, object: self)
         self.autocorrectionType = .no
         self.delegate = self
+        self.textContainerInset = UIEdgeInsetsMake(topInset, leftInset, bottomInset, rightInset)
     }
     
     deinit {
@@ -153,7 +154,6 @@ open class GrowingTextView: UITextView, UITextViewDelegate {
     }
     
     open func changeHeight(_ string: String) {
-        self.textContainerInset = UIEdgeInsetsMake(topInset, leftInset, bottomInset, rightInset)
         
         if text == oldText && bounds.size == oldSize { return }
         oldText = text
